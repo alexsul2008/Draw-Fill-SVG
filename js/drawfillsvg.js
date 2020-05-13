@@ -38,7 +38,7 @@
    */
 
   function extend( a, b ) {
-    for( var key in b ) { 
+    for( var key in b ) {
       if( b.hasOwnProperty( key ) ) {
         a[key] = b[key];
       }
@@ -65,7 +65,11 @@
    */
 
   DrawFillSVG.prototype.options = {
-    elementId : "svg"
+    elementId : "svg",
+    speed: {
+      path: 3,
+      fill: 0.2
+    }
   }
 
   /**
@@ -77,7 +81,7 @@
   DrawFillSVG.prototype._init = function() {
     this.svg = document.getElementById(this.options.elementId);
     this.paths = this.svg.querySelectorAll("path");
-    this._initAnimation();
+    this._initAnimation(this.options.speed);
   }
 
   /**
@@ -85,12 +89,12 @@
    *
    * Reset some style properties on our paths, add some transitions, set the
    * stroke-dasharray to the length of the path, and the stroke-dashoffset to
-   * the length of the path pushing it out of view initially. Then, set the 
+   * the length of the path pushing it out of view initially. Then, set the
    * stroke-dashoffset to 0, animating the strokes in a drawing manner. Then,
    * run the path filler sequence.
    */
 
-  DrawFillSVG.prototype._initAnimation = function() {
+  DrawFillSVG.prototype._initAnimation = function(speed) {
     for ( var i = 0; i < this.paths.length; i++ ) {
       var path = this.paths[i];
       var length = path.getTotalLength();
@@ -108,13 +112,13 @@
       path.getBoundingClientRect();
 
       // apply new transitions
-      path.style.transition = path.style.WebkitTransition = "stroke-dashoffset 2s ease-in-out";
+      path.style.transition = path.style.WebkitTransition = "stroke-dashoffset " + speed.path + "s ease-in-out";
 
       // go baby go
       path.style.strokeDashoffset = 0;
 
       // fill the path
-      this._fillPath( path );
+      this._fillPath( path, speed );
     }
   }
 
@@ -125,11 +129,11 @@
    * by updating the styles.
    */
 
-  DrawFillSVG.prototype._fillPath = function( path ) {
+  DrawFillSVG.prototype._fillPath = function( path, speed ) {
     path.addEventListener( transEndEventName, function() {
       // reset transitions
       path.style.transition = path.style.WebkitTransition = "none";
-      path.style.transition = path.style.WebkitTransition = "fill-opacity 1s ease-in-out, stroke-opacity 1s ease-in-out";
+      path.style.transition = path.style.WebkitTransition = "fill-opacity " + speed.fill + "s ease-in-out, stroke-opacity " + speed.fill + "s ease-in-out";
 
       // edit props
       path.style.fillOpacity = 1;
